@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Bakery Ilha da Gigoia | Faça seu Pedido</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #ffffff;
+      min-height: 100vh;
+      padding-top: 85px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ===== NAVBAR (HEADER) ===== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      background: #ebe542;
+      border-bottom: 3px solid #d4af37;
+      padding: 0.8rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .logo h2 {
+      color: #1a1f45;
+      font-size: 1.4rem;
+      letter-spacing: 1px;
+    }
+
+    .logo h2 span {
+      color: #1a1f45;
+    }
+
+    .logo p {
+      color: #1a1f45;
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .lang-selector {
+      position: relative;
+    }
+
+    .lang-selector select {
+      padding: 8px 16px;
+      border-radius: 30px;
+      border: 1.5px solid #1a1f45;
+      background: white;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #1a1f45;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-family: inherit;
+      appearance: none;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%231a1f45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+
+    .lang-selector select:hover {
+      border-color: #1a1f45;
+      background-color: #fdf8f0;
+    }
+
+    .lang-selector select:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(26, 31, 69, 0.15);
+    }
+
+    .btn-book {
+      background: #1a1f45;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #ebe542;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-book:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px -5px rgba(26, 31, 69, 0.3);
+      background: #2a2f5a;
+    }
+
+    .btn-question-header {
+      background: transparent;
+      border: 1.5px solid #1a1f45;
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #1a1f45;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-question-header:hover {
+      background: rgba(26, 31, 69, 0.08);
+      transform: translateY(-2px);
+    }
+
+    /* ===== MAIN CONTENT (WHITE) ===== */
+    .main-content {
+      flex: 1;
+      background: #ffffff;
+    }
+
+    /* ===== 3D BANNER ===== */
+    .stage {
+      background: transparent;
+      width: 100%;
+      overflow: hidden;
+      perspective: 800px;
+      perspective-origin: 50% 50%;
+      padding: 16px 0;
+    }
+
+    .belt {
+      position: relative;
+      width: 92%;
+      max-width: 900px;
+      margin: 0 auto;
+      aspect-ratio: 16 / 7;
+      cursor: pointer;
+    }
+
+    @supports not (aspect-ratio: 16/7) {
+      .belt { padding-bottom: 43.75%; height: 0; }
+    }
+
+    .banner {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .banner.active {
+      animation: slideThrough 8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      pointer-events: auto;
+    }
+
+    .banner.paused {
+      animation-play-state: paused;
+    }
+
+    @keyframes slideThrough {
+      0% {
+        transform: translateX(130%) translateZ(-300px) rotateY(-45deg);
+        opacity: 0;
+      }
+      12% { opacity: 1; }
+      25% {
+        transform: translateX(0%) translateZ(30px) rotateY(0deg);
+        opacity: 1;
+      }
+      75% {
+        transform: translateX(0%) translateZ(30px) rotateY(0deg);
+        opacity: 1;
+      }
+      88% { opacity: 1; }
+      100% {
+        transform: translateX(-130%) translateZ(-300px) rotateY(45deg);
+        opacity: 0;
+      }
+    }
+
+    .pause-indicator {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      font-size: clamp(0.6rem, 2vw, 0.75rem);
+      padding: 4px 10px;
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .pause-indicator.visible { opacity: 1; }
+
+    .dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.15);
+      transition: background 0.3s;
+    }
+    .dot.on { background: rgba(0,0,0,0.6); }
+
+    /* ===== FORM CONTAINER ===== */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .form-container {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 650px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e8e0d0;
+      transition: transform 0.3s ease;
+      scroll-margin-top: 90px;
+    }
+
+    .form-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      color: #1a1f45;
+      letter-spacing: 2px;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .header h1 span {
+      color: #d4af37;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .divider {
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, #d4af37, #8a7535, #d4af37);
+      margin: 1rem auto 0;
+      border-radius: 3px;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #1a1f45;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.3px;
+    }
+
+    label .required {
+      color: #e74c3c;
+      margin-left: 4px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 16px;
+      background: #faf8f5;
+      border: 1.5px solid #e0d8cc;
+      border-radius: 12px;
+      font-size: 1rem;
+      color: #1a1f45;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #d4af37;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+      background: #ffffff;
+    }
+
+    input:hover, select:hover, textarea:hover {
+      border-color: #d4af37;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23d4af37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #d4af37 0%, #b8962a 100%);
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #ffffff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 0.5rem;
+      letter-spacing: 1px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px -5px rgba(212, 175, 55, 0.4);
+    }
+
+    .char-counter {
+      font-size: 0.75rem;
+      color: #999;
+      text-align: right;
+      margin-top: 5px;
+    }
+
+    .success-message {
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid #d4af37;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+      text-align: center;
+      color: #1a1f45;
+      display: none;
+    }
+
+    .success-message.show {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .sub-group {
+      display: none;
+      margin-top: -0.5rem;
+      padding-left: 12px;
+      border-left: 3px solid #d4af37;
+    }
+
+    .sub-group.show {
+      display: block;
+    }
+
+    /* ===== SLIDE PANEL ===== */
+    .slide-panel {
+      position: fixed;
+      top: 0;
+      right: -480px;
+      width: 480px;
+      height: 100vh;
+      background: #ffffff;
+      border-left: 2px solid #d4af37;
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+      z-index: 1002;
+      transition: right 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .slide-panel.open {
+      right: 0;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #d4af37;
+    }
+
+    .panel-header h2 {
+      color: #1a1f45;
+      font-size: 1.5rem;
+    }
+
+    .close-panel {
+      background: none;
+      border: none;
+      color: #1a1f45;
+      font-size: 28px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .close-panel:hover {
+      transform: scale(1.1);
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(3px);
+      z-index: 1001;
+      display: none;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      background: #ebe542;
+      padding: 2rem;
+      text-align: center;
+      border-top: 3px solid #d4af37;
+      margin-top: auto;
+    }
+
+    .footer p {
+      color: #1a1f45;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .footer .social-links {
+      margin-top: 0.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .footer .social-links a {
+      color: #1a1f45;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s;
+      opacity: 0.7;
+    }
+
+    .footer .social-links a:hover {
+      opacity: 1;
+      transform: translateY(-2px);
+    }
+
+    /* ===== BACK TO TOP ===== */
+    .back-to-top {
+      position: fixed;
+      left: 30px;
+      bottom: 30px;
+      background: rgba(235, 229, 66, 0.9);
+      border: 1px solid #1a1f45;
+      color: #1a1f45;
+      padding: 10px 16px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      z-index: 998;
+      backdrop-filter: blur(5px);
+    }
+
+    .back-to-top:hover {
+      background: #ebe542;
+      transform: translateY(-2px);
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f5f0eb;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #d4af37;
+      border-radius: 4px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      body {
+        padding-top: 110px;
+      }
+      .container {
+        padding: 1rem;
+      }
+      .form-container {
+        padding: 1.5rem;
+      }
+      .row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      .slide-panel {
+        width: 100%;
+        right: -100%;
+      }
+      .navbar {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 0.8rem 1rem;
+      }
+      .nav-actions {
+        gap: 0.8rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .lang-selector select {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        padding-right: 30px;
+      }
+      .btn-book, .btn-question-header {
+        font-size: 0.8rem;
+        padding: 8px 16px;
+      }
+      .footer {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== HEADER (NAVBAR) ===== -->
+<nav class="navbar">
+  <div class="logo">
+    <h2>🥐 <span>Bakery</span> Ilha da Gigoia</h2>
+    <p class="translatable" data-key="tagline">Padaria artesanal • Ingredientes frescos • Sabor caseiro</p>
+  </div>
+  <div class="nav-actions">
+    <div class="lang-selector">
+      <select id="langSwitcher">
+        <option value="pt">🇧🇷 Português</option>
+        <option value="en">🇺🇸 English</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="fr">🇫🇷 Français</option>
+      </select>
+    </div>
+    <a href="#form" class="btn-book translatable" data-key="bookBtn">📅 Faça seu Pedido</a>
+    <button class="btn-question-header translatable" data-key="questionBtn" id="haveQuestionBtn">💬 Tem uma pergunta?</button>
+  </div>
+</nav>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="main-content">
+
+  <!-- ===== 3D BANNER ===== -->
+  <div class="stage">
+    <div class="belt" id="belt">
+      <div class="pause-indicator" id="pauseIndicator">⏸ Toque para continuar</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <!-- ===== FORM ===== -->
+  <div class="container">
+    <div class="form-container" id="form">
+      <div class="header">
+        <h1>🥐 <span>Bakery</span> Ilha da Gigoia</h1>
+        <p class="translatable" data-key="formSubtitle">Faça seu pedido — Sabor e qualidade em cada mordida</p>
+        <div class="divider"></div>
+      </div>
+
+      <form id="orderForm">
+        <div class="row">
+          <div class="form-group">
+            <label class="translatable" data-key="nameLabel">Nome completo <span class="required">*</span></label>
+            <input type="text" id="fullName" class="translatable-placeholder" data-key="namePlaceholder" placeholder="Digite seu nome completo" required>
+          </div>
+          <div class="form-group">
+            <label class="translatable" data-key="phoneLabel">Telefone <span class="required">*</span></label>
+            <input type="tel" id="phoneNumber" class="translatable-placeholder" data-key="phonePlaceholder" placeholder="(11) 99999-9999" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="translatable" data-key="productLabel">O que você deseja? <span class="required">*</span></label>
+          <select id="productSelect" required>
+            <option value="" disabled selected data-key="selectDefault">— Selecione uma opção —</option>
+            <optgroup label="🥖 Pães" data-key="groupBreads">
+              <option value="Pão Francês" data-key="optFrenchBread">Pão Francês</option>
+              <option value="Pão Integral" data-key="optWholeWheat">Pão Integral</option>
+              <option value="Pão de Forma" data-key="optSandwichBread">Pão de Forma</option>
+              <option value="Pão de Centeio" data-key="optRyeBread">Pão de Centeio</option>
+              <option value="Pão de Batata" data-key="optPotatoBread">Pão de Batata</option>
+              <option value="Baguete" data-key="optBaguette">Baguete</option>
+              <option value="Ciabatta" data-key="optCiabatta">Ciabatta</option>
+              <option value="Focaccia" data-key="optFocaccia">Focaccia</option>
+            </optgroup>
+            <optgroup label="🥐 Doces & Bolos" data-key="groupSweets">
+              <option value="Bolo de Cenoura" data-key="optCarrotCake">Bolo de Cenoura</option>
+              <option value="Bolo de Chocolate" data-key="optChocolateCake">Bolo de Chocolate</option>
+              <option value="Bolo de Laranja" data-key="optOrangeCake">Bolo de Laranja</option>
+              <option value="Pudim" data-key="optPudding">Pudim</option>
+              <option value="Torta de Limão" data-key="optLimePie">Torta de Limão</option>
+              <option value="Torta de Morango" data-key="optStrawberryPie">Torta de Morango</option>
+              <option value="Croissant" data-key="optCroissant">Croissant</option>
+              <option value="Sonho" data-key="optDream">Sonho</option>
+              <option value="Brigadeiro" data-key="optBrigadeiro">Brigadeiro</option>
+            </optgroup>
+            <optgroup label="🍞 Pães Especiais" data-key="groupSpecialBreads">
+              <option value="Pão de Queijo" data-key="optCheeseBread">Pão de Queijo</option>
+              <option value="Pão de Alho" data-key="optGarlicBread">Pão de Alho</option>
+              <option value="Pão de Mel" data-key="optHoneyBread">Pão de Mel</option>
+              <option value="Pão de Banana" data-key="optBananaBread">Pão de Banana</option>
+            </optgroup>
+            <optgroup label="☕ Bebidas" data-key="groupDrinks">
+              <option value="Café Espresso" data-key="optEspresso">Café Espresso</option>
+              <option value="Cappuccino" data-key="optCappuccino">Cappuccino</option>
+              <option value="Suco Natural" data-key="optJuice">Suco Natural</option>
+              <option value="Chá" data-key="optTea">Chá</option>
+              <option value="Chocolate Quente" data-key="optHotChocolate">Chocolate Quente</option>
+            </optgroup>
+            <optgroup label="✨ Outros" data-key="groupOthers">
+              <option value="Salgado" data-key="optSavory">Salgado</option>
+              <option value="Empada" data-key="optEmpada">Empada</option>
+              <option value="Coxinha" data-key="optCoxinha">Coxinha</option>
+              <option value="Outro" data-key="optOther">Outro</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <!-- ===== BREAD CUT SUB-OPTION ===== -->
+        <div class="sub-group" id="breadSubGroup">
+          <div class="form-group">
+            <label class="translatable" data-key="breadCutLabel">Cortado ou inteiro? <span class="required">*</span></label>
+            <select id="breadCut">
+              <option value="inteiro" data-key="optWhole">Inteiro</option>
+              <option value="cortado" data-key="optCut">Cortado</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ===== PICKUP TIME ===== -->
+        <div class="form-group">
+          <label class="translatable" data-key="pickupLabel">Quando você vai retirar? <span class="required">*</span></label>
+          <select id="pickupTime" required>
+            <option value="" disabled selected data-key="pickupDefault">— Selecione um horário —</option>
+            <option value="15min" data-key="opt15min">15 minutos</option>
+            <option value="30min" data-key="opt30min">30 minutos</option>
+            <option value="45min" data-key="opt45min">45 minutos</option>
+            <option value="1h" data-key="opt1h">1 hora</option>
+            <option value="2h" data-key="opt2h">2 horas</option>
+            <option value="3h" data-key="opt3h">3 horas</option>
+            <option value="5h" data-key="opt5h">5 horas</option>
+            <option value="amanha" data-key="optTomorrow">Amanhã</option>
+          </select>
+        </div>
+
+        <!-- ===== TOMORROW PERIOD SUB-OPTION ===== -->
+        <div class="sub-group" id="tomorrowSubGroup">
+          <div class="form-group">
+            <label class="translatable" data-key="tomorrowPeriodLabel">Período <span class="required">*</span></label>
+            <select id="tomorrowPeriod">
+              <option value="manha" data-key="optMorning">Manhã</option>
+              <option value="tarde" data-key="optAfternoon">Tarde</option>
+              <option value="noite" data-key="optEvening">Noite</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ===== COMMENTS ===== -->
+        <div class="form-group">
+          <label class="translatable" data-key="commentLabel">Algo mais? (até 500 caracteres)</label>
+          <textarea id="comments" class="translatable-placeholder" data-key="commentPlaceholder" placeholder="Observações, preferências ou pedidos especiais..." maxlength="500"></textarea>
+          <div class="char-counter">
+            <span id="charCount">0</span> <span class="translatable" data-key="charCounter">/ 500 caracteres</span>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn translatable" data-key="submitBtn">📋 Enviar Pedido</button>
+        <div id="successMessage" class="success-message translatable" data-key="successMsg">✓ Pedido enviado! Entraremos em contato em até 24h para confirmar.</div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <p class="translatable" data-key="footerText">🥐 Bakery Ilha da Gigoia — Sabor que abraça o coração</p>
+  <div class="social-links">
+    <a href="#" class="translatable" data-key="footerInstagram">📸 Instagram</a>
+    <a href="#" class="translatable" data-key="footerFacebook">📘 Facebook</a>
+    <a href="#" class="translatable" data-key="footerWhatsApp">💬 WhatsApp</a>
+  </div>
+</footer>
+
+<!-- ===== QUESTION PANEL ===== -->
+<div class="overlay" id="overlay"></div>
+<div class="slide-panel" id="slidePanel">
+  <div class="panel-header">
+    <h2 class="translatable" data-key="panelTitle">💬 Tem uma pergunta? Fale conosco</h2>
+    <button class="close-panel" id="closePanel">✕</button>
+  </div>
+
+  <form id="questionForm">
+    <div class="form-group">
+      <label class="translatable" data-key="nameLabel">Nome completo <span class="required">*</span></label>
+      <input type="text" id="questionName" class="translatable-placeholder" data-key="namePlaceholder" placeholder="Digite seu nome" required>
+    </div>
+    <div class="form-group">
+      <label class="translatable" data-key="phoneLabel">Telefone <span class="required">*</span></label>
+      <input type="tel" id="questionPhone" class="translatable-placeholder" data-key="phonePlaceholder" placeholder="(11) 99999-9999" required>
+    </div>
+    <div class="form-group">
+      <label class="translatable" data-key="questionLabel">Sua pergunta <span class="required">*</span></label>
+      <textarea id="questionText" class="translatable-placeholder" data-key="questionPlaceholder" placeholder="Digite sua pergunta sobre nossos pães, bolos, encomendas, horários..." rows="4" maxlength="500" required></textarea>
+      <div class="char-counter">
+        <span id="questionCharCount">0</span> <span class="translatable" data-key="charCounter">/ 500 caracteres</span>
+      </div>
+    </div>
+    <button type="submit" class="submit-btn translatable" data-key="sendQuestionBtn" style="margin-top:0;">📧 Enviar Pergunta</button>
+    <div id="questionSuccess" class="success-message translatable" data-key="questionSuccessMsg">✓ Pergunta enviada! Responderemos em breve.</div>
+  </form>
+</div>
+
+<!-- ===== BACK TO TOP ===== -->
+<a href="#" class="back-to-top translatable" data-key="backToTop">⬆ Voltar ao topo</a>
+
+<script>
+  (function() {
+    // ============================================================
+    // 1. 3D BANNER – with your 2 images
+    // ============================================================
+    var images = [
+      "Gemini_Generated_Image_jb1satjb1satjb1s.png",
+      "Gemini_Generated_Image_2bae9s2bae9s2bae.png"
+    ];
+
+    var belt           = document.getElementById('belt');
+    var dotsWrap       = document.getElementById('dots');
+    var pauseIndicator = document.getElementById('pauseIndicator');
+    var current        = 0;
+    var banners        = [];
+    var dots           = [];
+    var isPaused       = false;
+    var nextTimer      = null;
+    var isTouchDevice  = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+    images.forEach(function(src, i) {
+      var div = document.createElement('div');
+      div.className = 'banner';
+      div.style.backgroundImage = 'url("' + src + '")';
+      belt.appendChild(div);
+      banners.push(div);
+
+      var dot = document.createElement('div');
+      dot.className = 'dot';
+      dotsWrap.appendChild(dot);
+      dots.push(dot);
+    });
+
+    function updateDots(idx) {
+      dots.forEach(function(d, i) {
+        d.classList.toggle('on', i === idx);
+      });
+    }
+
+    function pause() {
+      if (isPaused) return;
+      isPaused = true;
+      clearTimeout(nextTimer);
+      banners.forEach(function(b) { b.classList.add('paused'); });
+      pauseIndicator.classList.add('visible');
+    }
+
+    function resume() {
+      if (!isPaused) return;
+      isPaused = false;
+      banners.forEach(function(b) { b.classList.remove('paused'); });
+      pauseIndicator.classList.remove('visible');
+      nextTimer = setTimeout(showNext, 2000);
+    }
+
+    if (!isTouchDevice) {
+      belt.addEventListener('mouseenter', pause);
+      belt.addEventListener('mouseleave', resume);
+    }
+
+    if (isTouchDevice) {
+      belt.addEventListener('touchstart', function(e) {
+        if (e.target.closest('a')) return;
+        if (isPaused) {
+          clearTimeout(window.tapPauseTimer);
+          resume();
+        } else {
+          pause();
+          window.tapPauseTimer = setTimeout(resume, 8000);
+        }
+      }, { passive: true });
+    }
+
+    function showNext() {
+      if (isPaused) return;
+      banners.forEach(function(b) {
+        b.classList.remove('active', 'paused');
+        void b.offsetWidth;
+      });
+      banners[current].classList.add('active');
+      updateDots(current);
+      current = (current + 1) % banners.length;
+      nextTimer = setTimeout(showNext, 8000);
+    }
+    showNext();
+
+    // ============================================================
+    // 2. TRANSLATIONS (Authentic Brazilian Portuguese base)
+    // ============================================================
+    var translations = {
+      pt: {
+        tagline: 'Padaria artesanal • Ingredientes frescos • Sabor caseiro',
+        bookBtn: '📅 Faça seu Pedido',
+        questionBtn: '💬 Tem uma pergunta?',
+        formSubtitle: 'Faça seu pedido — Sabor e qualidade em cada mordida',
+        nameLabel: 'Nome completo',
+        namePlaceholder: 'Digite seu nome completo',
+        phoneLabel: 'Telefone',
+        phonePlaceholder: '(11) 99999-9999',
+        productLabel: 'O que você deseja?',
+        selectDefault: '— Selecione uma opção —',
+        groupBreads: '🥖 Pães',
+        optFrenchBread: 'Pão Francês',
+        optWholeWheat: 'Pão Integral',
+        optSandwichBread: 'Pão de Forma',
+        optRyeBread: 'Pão de Centeio',
+        optPotatoBread: 'Pão de Batata',
+        optBaguette: 'Baguete',
+        optCiabatta: 'Ciabatta',
+        optFocaccia: 'Focaccia',
+        groupSweets: '🥐 Doces & Bolos',
+        optCarrotCake: 'Bolo de Cenoura',
+        optChocolateCake: 'Bolo de Chocolate',
+        optOrangeCake: 'Bolo de Laranja',
+        optPudding: 'Pudim',
+        optLimePie: 'Torta de Limão',
+        optStrawberryPie: 'Torta de Morango',
+        optCroissant: 'Croissant',
+        optDream: 'Sonho',
+        optBrigadeiro: 'Brigadeiro',
+        groupSpecialBreads: '🍞 Pães Especiais',
+        optCheeseBread: 'Pão de Queijo',
+        optGarlicBread: 'Pão de Alho',
+        optHoneyBread: 'Pão de Mel',
+        optBananaBread: 'Pão de Banana',
+        groupDrinks: '☕ Bebidas',
+        optEspresso: 'Café Espresso',
+        optCappuccino: 'Cappuccino',
+        optJuice: 'Suco Natural',
+        optTea: 'Chá',
+        optHotChocolate: 'Chocolate Quente',
+        groupOthers: '✨ Outros',
+        optSavory: 'Salgado',
+        optEmpada: 'Empada',
+        optCoxinha: 'Coxinha',
+        optOther: 'Outro',
+        breadCutLabel: 'Cortado ou inteiro?',
+        optWhole: 'Inteiro',
+        optCut: 'Cortado',
+        pickupLabel: 'Quando você vai retirar?',
+        pickupDefault: '— Selecione um horário —',
+        opt15min: '15 minutos',
+        opt30min: '30 minutos',
+        opt45min: '45 minutos',
+        opt1h: '1 hora',
+        opt2h: '2 horas',
+        opt3h: '3 horas',
+        opt5h: '5 horas',
+        optTomorrow: 'Amanhã',
+        tomorrowPeriodLabel: 'Período',
+        optMorning: 'Manhã',
+        optAfternoon: 'Tarde',
+        optEvening: 'Noite',
+        commentLabel: 'Algo mais? (até 500 caracteres)',
+        commentPlaceholder: 'Observações, preferências ou pedidos especiais...',
+        charCounter: '/ 500 caracteres',
+        submitBtn: '📋 Enviar Pedido',
+        successMsg: '✓ Pedido enviado! Entraremos em contato em até 24h para confirmar.',
+        panelTitle: '💬 Tem uma pergunta? Fale conosco',
+        questionLabel: 'Sua pergunta',
+        questionPlaceholder: 'Digite sua pergunta sobre nossos pães, bolos, encomendas, horários...',
+        sendQuestionBtn: '📧 Enviar Pergunta',
+        questionSuccessMsg: '✓ Pergunta enviada! Responderemos em breve.',
+        backToTop: '⬆ Voltar ao topo',
+        alertFillAll: 'Por favor, preencha todos os campos obrigatórios.',
+        footerText: '🥐 Bakery Ilha da Gigoia — Sabor que abraça o coração',
+        footerInstagram: '📸 Instagram',
+        footerFacebook: '📘 Facebook',
+        footerWhatsApp: '💬 WhatsApp'
+      },
+      en: {
+        tagline: 'Artisan bakery • Fresh ingredients • Homemade flavor',
+        bookBtn: '📅 Place Your Order',
+        questionBtn: '💬 Have a Question?',
+        formSubtitle: 'Place your order — Flavor and quality in every bite',
+        nameLabel: 'Full Name',
+        namePlaceholder: 'Enter your full name',
+        phoneLabel: 'Phone',
+        phonePlaceholder: '(11) 99999-9999',
+        productLabel: 'What would you like?',
+        selectDefault: '— Select an option —',
+        groupBreads: '🥖 Breads',
+        optFrenchBread: 'French Bread',
+        optWholeWheat: 'Whole Wheat Bread',
+        optSandwichBread: 'Sandwich Bread',
+        optRyeBread: 'Rye Bread',
+        optPotatoBread: 'Potato Bread',
+        optBaguette: 'Baguette',
+        optCiabatta: 'Ciabatta',
+        optFocaccia: 'Focaccia',
+        groupSweets: '🥐 Sweets & Cakes',
+        optCarrotCake: 'Carrot Cake',
+        optChocolateCake: 'Chocolate Cake',
+        optOrangeCake: 'Orange Cake',
+        optPudding: 'Pudding',
+        optLimePie: 'Lime Pie',
+        optStrawberryPie: 'Strawberry Pie',
+        optCroissant: 'Croissant',
+        optDream: 'Custard Donut',
+        optBrigadeiro: 'Brigadeiro',
+        groupSpecialBreads: '🍞 Special Breads',
+        optCheeseBread: 'Cheese Bread',
+        optGarlicBread: 'Garlic Bread',
+        optHoneyBread: 'Honey Bread',
+        optBananaBread: 'Banana Bread',
+        groupDrinks: '☕ Drinks',
+        optEspresso: 'Espresso Coffee',
+        optCappuccino: 'Cappuccino',
+        optJuice: 'Natural Juice',
+        optTea: 'Tea',
+        optHotChocolate: 'Hot Chocolate',
+        groupOthers: '✨ Others',
+        optSavory: 'Savory Pastry',
+        optEmpada: 'Empada',
+        optCoxinha: 'Coxinha',
+        optOther: 'Other',
+        breadCutLabel: 'Cut or whole?',
+        optWhole: 'Whole',
+        optCut: 'Cut',
+        pickupLabel: 'When will you pick it up?',
+        pickupDefault: '— Select a time —',
+        opt15min: '15 minutes',
+        opt30min: '30 minutes',
+        opt45min: '45 minutes',
+        opt1h: '1 hour',
+        opt2h: '2 hours',
+        opt3h: '3 hours',
+        opt5h: '5 hours',
+        optTomorrow: 'Tomorrow',
+        tomorrowPeriodLabel: 'Period',
+        optMorning: 'Morning',
+        optAfternoon: 'Afternoon',
+        optEvening: 'Evening',
+        commentLabel: 'Anything else? (up to 500 characters)',
+        commentPlaceholder: 'Notes, preferences or special requests...',
+        charCounter: '/ 500 characters',
+        submitBtn: '📋 Submit Order',
+        successMsg: '✓ Order sent! We\'ll contact you within 24h to confirm.',
+        panelTitle: '💬 Have a Question? Contact us',
+        questionLabel: 'Your Question',
+        questionPlaceholder: 'Ask about our breads, cakes, orders, hours...',
+        sendQuestionBtn: '📧 Send Question',
+        questionSuccessMsg: '✓ Question sent! We\'ll respond shortly.',
+        backToTop: '⬆ Back to Top',
+        alertFillAll: 'Please fill in all required fields.',
+        footerText: '🥐 Bakery Ilha da Gigoia — Flavor that hugs the heart',
+        footerInstagram: '📸 Instagram',
+        footerFacebook: '📘 Facebook',
+        footerWhatsApp: '💬 WhatsApp'
+      },
+      es: {
+        tagline: 'Panadería artesanal • Ingredientes frescos • Sabor casero',
+        bookBtn: '📅 Haz tu Pedido',
+        questionBtn: '💬 ¿Tienes una pregunta?',
+        formSubtitle: 'Haz tu pedido — Sabor y calidad en cada bocado',
+        nameLabel: 'Nombre completo',
+        namePlaceholder: 'Escribe tu nombre completo',
+        phoneLabel: 'Teléfono',
+        phonePlaceholder: '(11) 99999-9999',
+        productLabel: '¿Qué deseas?',
+        selectDefault: '— Selecciona una opción —',
+        groupBreads: '🥖 Panes',
+        optFrenchBread: 'Pan Francés',
+        optWholeWheat: 'Pan Integral',
+        optSandwichBread: 'Pan de Molde',
+        optRyeBread: 'Pan de Centeno',
+        optPotatoBread: 'Pan de Papa',
+        optBaguette: 'Baguette',
+        optCiabatta: 'Ciabatta',
+        optFocaccia: 'Focaccia',
+        groupSweets: '🥐 Dulces & Pasteles',
+        optCarrotCake: 'Pastel de Zanahoria',
+        optChocolateCake: 'Pastel de Chocolate',
+        optOrangeCake: 'Pastel de Naranja',
+        optPudding: 'Pudín',
+        optLimePie: 'Tarta de Lima',
+        optStrawberryPie: 'Tarta de Fresa',
+        optCroissant: 'Croissant',
+        optDream: 'Donut de Crema',
+        optBrigadeiro: 'Brigadeiro',
+        groupSpecialBreads: '🍞 Panes Especiales',
+        optCheeseBread: 'Pan de Queso',
+        optGarlicBread: 'Pan de Ajo',
+        optHoneyBread: 'Pan de Miel',
+        optBananaBread: 'Pan de Plátano',
+        groupDrinks: '☕ Bebidas',
+        optEspresso: 'Café Espresso',
+        optCappuccino: 'Cappuccino',
+        optJuice: 'Jugo Natural',
+        optTea: 'Té',
+        optHotChocolate: 'Chocolate Caliente',
+        groupOthers: '✨ Otros',
+        optSavory: 'Salado',
+        optEmpada: 'Empada',
+        optCoxinha: 'Coxinha',
+        optOther: 'Otro',
+        breadCutLabel: '¿Cortado o entero?',
+        optWhole: 'Entero',
+        optCut: 'Cortado',
+        pickupLabel: '¿Cuándo vas a retirar?',
+        pickupDefault: '— Selecciona un horario —',
+        opt15min: '15 minutos',
+        opt30min: '30 minutos',
+        opt45min: '45 minutos',
+        opt1h: '1 hora',
+        opt2h: '2 horas',
+        opt3h: '3 horas',
+        opt5h: '5 horas',
+        optTomorrow: 'Mañana',
+        tomorrowPeriodLabel: 'Período',
+        optMorning: 'Mañana',
+        optAfternoon: 'Tarde',
+        optEvening: 'Noche',
+        commentLabel: '¿Algo más? (hasta 500 caracteres)',
+        commentPlaceholder: 'Notas, preferencias o pedidos especiales...',
+        charCounter: '/ 500 caracteres',
+        submitBtn: '📋 Enviar Pedido',
+        successMsg: '✓ ¡Pedido enviado! Te contactaremos en 24h para confirmar.',
+        panelTitle: '💬 ¿Tienes una pregunta? Contáctanos',
+        questionLabel: 'Tu pregunta',
+        questionPlaceholder: 'Pregunta sobre nuestros panes, pasteles, pedidos, horarios...',
+        sendQuestionBtn: '📧 Enviar Pregunta',
+        questionSuccessMsg: '✓ ¡Pregunta enviada! Responderemos pronto.',
+        backToTop: '⬆ Volver arriba',
+        alertFillAll: 'Por favor, completa todos los campos obligatorios.',
+        footerText: '🥐 Bakery Ilha da Gigoia — Sabor que abraza el corazón',
+        footerInstagram: '📸 Instagram',
+        footerFacebook: '📘 Facebook',
+        footerWhatsApp: '💬 WhatsApp'
+      },
+      de: {
+        tagline: 'Handwerksbäckerei • Frische Zutaten • Hausgemachter Geschmack',
+        bookBtn: '📅 Bestellung aufgeben',
+        questionBtn: '💬 Haben Sie eine Frage?',
+        formSubtitle: 'Bestellen Sie — Geschmack und Qualität in jedem Bissen',
+        nameLabel: 'Vollständiger Name',
+        namePlaceholder: 'Geben Sie Ihren vollständigen Namen ein',
+        phoneLabel: 'Telefon',
+        phonePlaceholder: '(11) 99999-9999',
+        productLabel: 'Was möchten Sie?',
+        selectDefault: '— Wählen Sie eine Option —',
+        groupBreads: '🥖 Brote',
+        optFrenchBread: 'Französisches Brot',
+        optWholeWheat: 'Vollkornbrot',
+        optSandwichBread: 'Toastbrot',
+        optRyeBread: 'Roggenbrot',
+        optPotatoBread: 'Kartoffelbrot',
+        optBaguette: 'Baguette',
+        optCiabatta: 'Ciabatta',
+        optFocaccia: 'Focaccia',
+        groupSweets: '🥐 Süßes & Kuchen',
+        optCarrotCake: 'Karottenkuchen',
+        optChocolateCake: 'Schokoladenkuchen',
+        optOrangeCake: 'Orangenkuchen',
+        optPudding: 'Pudding',
+        optLimePie: 'Limettentorte',
+        optStrawberryPie: 'Erdbeertorte',
+        optCroissant: 'Croissant',
+        optDream: 'Cremespender',
+        optBrigadeiro: 'Brigadeiro',
+        groupSpecialBreads: '🍞 Spezialbrote',
+        optCheeseBread: 'Käsebrot',
+        optGarlicBread: 'Knoblauchbrot',
+        optHoneyBread: 'Honigbrot',
+        optBananaBread: 'Bananenbrot',
+        groupDrinks: '☕ Getränke',
+        optEspresso: 'Espresso',
+        optCappuccino: 'Cappuccino',
+        optJuice: 'Natursaft',
+        optTea: 'Tee',
+        optHotChocolate: 'Heiße Schokolade',
+        groupOthers: '✨ Andere',
+        optSavory: 'Herzhaftes Gebäck',
+        optEmpada: 'Empada',
+        optCoxinha: 'Coxinha',
+        optOther: 'Anderes',
+        breadCutLabel: 'Geschnitten oder ganz?',
+        optWhole: 'Ganz',
+        optCut: 'Geschnitten',
+        pickupLabel: 'Wann holen Sie ab?',
+        pickupDefault: '— Wählen Sie eine Zeit —',
+        opt15min: '15 Minuten',
+        opt30min: '30 Minuten',
+        opt45min: '45 Minuten',
+        opt1h: '1 Stunde',
+        opt2h: '2 Stunden',
+        opt3h: '3 Stunden',
+        opt5h: '5 Stunden',
+        optTomorrow: 'Morgen',
+        tomorrowPeriodLabel: 'Zeitraum',
+        optMorning: 'Vormittag',
+        optAfternoon: 'Nachmittag',
+        optEvening: 'Abend',
+        commentLabel: 'Sonst noch etwas? (bis zu 500 Zeichen)',
+        commentPlaceholder: 'Anmerkungen, Vorlieben oder Sonderwünsche...',
+        charCounter: '/ 500 Zeichen',
+        submitBtn: '📋 Bestellung absenden',
+        successMsg: '✓ Bestellung gesendet! Wir melden uns innerhalb von 24h zur Bestätigung.',
+        panelTitle: '💬 Haben Sie eine Frage? Kontaktieren Sie uns',
+        questionLabel: 'Ihre Frage',
+        questionPlaceholder: 'Fragen Sie nach unseren Broten, Kuchen, Bestellungen, Öffnungszeiten...',
+        sendQuestionBtn: '📧 Frage senden',
+        questionSuccessMsg: '✓ Frage gesendet! Wir antworten bald.',
+        backToTop: '⬆ Zurück nach oben',
+        alertFillAll: 'Bitte füllen Sie alle Pflichtfelder aus.',
+        footerText: '🥐 Bakery Ilha da Gigoia — Geschmack, der das Herz umarmt',
+        footerInstagram: '📸 Instagram',
+        footerFacebook: '📘 Facebook',
+        footerWhatsApp: '💬 WhatsApp'
+      },
+      fr: {
+        tagline: 'Boulangerie artisanale • Ingrédients frais • Saveur maison',
+        bookBtn: '📅 Passer votre commande',
+        questionBtn: '💬 Une question ?',
+        formSubtitle: 'Passez votre commande — Saveur et qualité à chaque bouchée',
+        nameLabel: 'Nom complet',
+        namePlaceholder: 'Entrez votre nom complet',
+        phoneLabel: 'Téléphone',
+        phonePlaceholder: '(11) 99999-9999',
+        productLabel: 'Que désirez-vous ?',
+        selectDefault: '— Sélectionnez une option —',
+        groupBreads: '🥖 Pains',
+        optFrenchBread: 'Pain Français',
+        optWholeWheat: 'Pain Complet',
+        optSandwichBread: 'Pain de Mie',
+        optRyeBread: 'Pain de Seigle',
+        optPotatoBread: 'Pain aux Pommes de Terre',
+        optBaguette: 'Baguette',
+        optCiabatta: 'Ciabatta',
+        optFocaccia: 'Focaccia',
+        groupSweets: '🥐 Pâtisseries & Gâteaux',
+        optCarrotCake: 'Gâteau aux Carottes',
+        optChocolateCake: 'Gâteau au Chocolat',
+        optOrangeCake: 'Gâteau à l\'Orange',
+        optPudding: 'Pudding',
+        optLimePie: 'Tarte au Citron Vert',
+        optStrawberryPie: 'Tarte aux Fraises',
+        optCroissant: 'Croissant',
+        optDream: 'Beignet à la Crème',
+        optBrigadeiro: 'Brigadeiro',
+        groupSpecialBreads: '🍞 Pains Spéciaux',
+        optCheeseBread: 'Pain au Fromage',
+        optGarlicBread: 'Pain à l\'Ail',
+        optHoneyBread: 'Pain au Miel',
+        optBananaBread: 'Pain à la Banane',
+        groupDrinks: '☕ Boissons',
+        optEspresso: 'Café Espresso',
+        optCappuccino: 'Cappuccino',
+        optJuice: 'Jus Naturel',
+        optTea: 'Thé',
+        optHotChocolate: 'Chocolat Chaud',
+        groupOthers: '✨ Autres',
+        optSavory: 'Salé',
+        optEmpada: 'Empada',
+        optCoxinha: 'Coxinha',
+        optOther: 'Autre',
+        breadCutLabel: 'Coupé ou entier ?',
+        optWhole: 'Entier',
+        optCut: 'Coupé',
+        pickupLabel: 'Quand venez-vous chercher ?',
+        pickupDefault: '— Sélectionnez un horaire —',
+        opt15min: '15 minutes',
+        opt30min: '30 minutes',
+        opt45min: '45 minutes',
+        opt1h: '1 heure',
+        opt2h: '2 heures',
+        opt3h: '3 heures',
+        opt5h: '5 heures',
+        optTomorrow: 'Demain',
+        tomorrowPeriodLabel: 'Période',
+        optMorning: 'Matin',
+        optAfternoon: 'Après-midi',
+        optEvening: 'Soir',
+        commentLabel: 'Autre chose ? (jusqu\'à 500 caractères)',
+        commentPlaceholder: 'Notes, préférences ou demandes spéciales...',
+        charCounter: '/ 500 caractères',
+        submitBtn: '📋 Envoyer la commande',
+        successMsg: '✓ Commande envoyée ! Nous vous contacterons sous 24h pour confirmer.',
+        panelTitle: '💬 Une question ? Contactez-nous',
+        questionLabel: 'Votre question',
+        questionPlaceholder: 'Posez des questions sur nos pains, gâteaux, commandes, horaires...',
+        sendQuestionBtn: '📧 Envoyer la question',
+        questionSuccessMsg: '✓ Question envoyée ! Nous répondrons bientôt.',
+        backToTop: '⬆ Retour en haut',
+        alertFillAll: 'Veuillez remplir tous les champs obligatoires.',
+        footerText: '🥐 Bakery Ilha da Gigoia — Une saveur qui réchauffe le cœur',
+        footerInstagram: '📸 Instagram',
+        footerFacebook: '📘 Facebook',
+        footerWhatsApp: '💬 WhatsApp'
+      }
+    };
+
+    var currentLang = 'pt';
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      var dict = translations[lang];
+      if (!dict) return;
+
+      document.querySelectorAll('.translatable').forEach(function(el) {
+        var key = el.getAttribute('data-key');
+        if (dict[key] !== undefined) {
+          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+            el.placeholder = dict[key];
+          } else {
+            el.textContent = dict[key];
+          }
+        }
+      });
+
+      document.querySelectorAll('.translatable-placeholder').forEach(function(el) {
+        var key = el.getAttribute('data-key');
+        if (dict[key] !== undefined) {
+          el.placeholder = dict[key];
+        }
+      });
+
+      document.querySelectorAll('select option[data-key]').forEach(function(opt) {
+        var key = opt.getAttribute('data-key');
+        if (dict[key] !== undefined) {
+          opt.textContent = dict[key];
+        }
+      });
+
+      document.querySelectorAll('select optgroup[data-key]').forEach(function(optgroup) {
+        var key = optgroup.getAttribute('data-key');
+        if (dict[key] !== undefined) {
+          optgroup.label = dict[key];
+        }
+      });
+
+      var pauseText = {
+        pt: '⏸ Toque para continuar',
+        en: '⏸ Tap to resume',
+        es: '⏸ Toca para reanudar',
+        de: '⏸ Tippen zum Fortsetzen',
+        fr: '⏸ Appuyez pour reprendre'
+      };
+      document.getElementById('pauseIndicator').textContent = pauseText[lang] || pauseText.pt;
+    }
+
+    document.getElementById('langSwitcher').addEventListener('change', function() {
+      applyLanguage(this.value);
+    });
+
+    applyLanguage('pt');
+
+    // ============================================================
+    // 3. FORM LOGIC
+    // ============================================================
+    var productSelect = document.getElementById('productSelect');
+    var breadSubGroup = document.getElementById('breadSubGroup');
+    var pickupTime    = document.getElementById('pickupTime');
+    var tomorrowSub   = document.getElementById('tomorrowSubGroup');
+    var commentsInput = document.getElementById('comments');
+    var charCountSpan = document.getElementById('charCount');
+
+    productSelect.addEventListener('change', function() {
+      var isBread = this.value.includes('Pão') || this.value === 'Baguete' || this.value === 'Ciabatta' || this.value === 'Focaccia';
+      breadSubGroup.classList.toggle('show', isBread);
+    });
+
+    pickupTime.addEventListener('change', function() {
+      tomorrowSub.classList.toggle('show', this.value === 'amanha');
+    });
+
+    if (commentsInput && charCountSpan) {
+      commentsInput.addEventListener('input', function() {
+        var count = this.value.length;
+        charCountSpan.textContent = count;
+        charCountSpan.style.color = count > 480 ? '#e74c3c' : '#999';
+      });
+    }
+
+    // ===== QUESTION CHAR COUNTER =====
+    var questionText = document.getElementById('questionText');
+    var questionCharSpan = document.getElementById('questionCharCount');
+    if (questionText && questionCharSpan) {
+      questionText.addEventListener('input', function() {
+        var count = this.value.length;
+        questionCharSpan.textContent = count;
+        questionCharSpan.style.color = count > 480 ? '#e74c3c' : '#999';
+      });
+    }
+
+    // ============================================================
+    // 4. WHATSAPP SUBMIT - sends order to +14158770687
+    // ============================================================
+    var orderForm = document.getElementById('orderForm');
+    if (orderForm) {
+      orderForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        var name = document.getElementById('fullName').value.trim();
+        var phone = document.getElementById('phoneNumber').value.trim();
+        var product = document.getElementById('productSelect').value;
+        var pickup = document.getElementById('pickupTime').value;
+        var breadCut = document.getElementById('breadCut').value;
+        var tomorrowPeriod = document.getElementById('tomorrowPeriod').value;
+        var comments = document.getElementById('comments').value.trim();
+
+        if (!name || !phone || !product || !pickup) {
+          alert(translations[currentLang].alertFillAll || 'Por favor, preencha todos os campos obrigatórios.');
+          return;
+        }
+
+        var message = '🍞 *NOVO PEDIDO - Bakery Ilha da Gigoia*%0A%0A';
+        message += '👤 *Nome:* ' + encodeURIComponent(name) + '%0A';
+        message += '📱 *Telefone:* ' + encodeURIComponent(phone) + '%0A';
+        message += '🥖 *Produto:* ' + encodeURIComponent(product) + '%0A';
+
+        if (breadSubGroup.classList.contains('show')) {
+          var cutLabel = currentLang === 'pt' ? 'Cortado/Inteiro' :
+                        currentLang === 'en' ? 'Cut/Whole' :
+                        currentLang === 'es' ? 'Cortado/Entero' :
+                        currentLang === 'de' ? 'Geschnitten/Ganz' : 'Coupé/Entier';
+          message += '✂️ *' + cutLabel + ':* ' + encodeURIComponent(breadCut) + '%0A';
+        }
+
+        var pickupLabel = currentLang === 'pt' ? 'Retirada' :
+                         currentLang === 'en' ? 'Pickup' :
+                         currentLang === 'es' ? 'Retiro' :
+                         currentLang === 'de' ? 'Abholung' : 'Retrait';
+        message += '⏰ *' + pickupLabel + ':* ' + encodeURIComponent(pickup) + '%0A';
+
+        if (tomorrowSub.classList.contains('show')) {
+          var periodLabel = currentLang === 'pt' ? 'Período' :
+                           currentLang === 'en' ? 'Period' :
+                           currentLang === 'es' ? 'Período' :
+                           currentLang === 'de' ? 'Zeitraum' : 'Période';
+          message += '📅 *' + periodLabel + ':* ' + encodeURIComponent(tomorrowPeriod) + '%0A';
+        }
+
+        if (comments) {
+          message += '%0A📝 *Observações:* ' + encodeURIComponent(comments) + '%0A';
+        }
+
+        message += '%0A✅ *Pedido enviado via site!*';
+
+        var whatsappURL = 'https://wa.me/14158770687?text=' + message;
+        window.open(whatsappURL, '_blank');
+
+        var successMsg = document.getElementById('successMessage');
+        successMsg.classList.add('show');
+
+        this.reset();
+        if (charCountSpan) charCountSpan.textContent = '0';
+        breadSubGroup.classList.remove('show');
+        tomorrowSub.classList.remove('show');
+
+        setTimeout(function() {
+          successMsg.classList.remove('show');
+        }, 5000);
+      });
+    }
+
+    // ============================================================
+    // 5. QUESTION PANEL
+    // ============================================================
+    var haveQuestionBtn = document.getElementById('haveQuestionBtn');
+    var slidePanel = document.getElementById('slidePanel');
+    var overlay = document.getElementById('overlay');
+    var closePanelBtn = document.getElementById('closePanel');
+
+    function openQuestionPanel() {
+      slidePanel.classList.add('open');
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeQuestionPanel() {
+      slidePanel.classList.remove('open');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    if (haveQuestionBtn) {
+      haveQuestionBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        openQuestionPanel();
+      });
+    }
+
+    if (closePanelBtn) closePanelBtn.addEventListener('click', closeQuestionPanel);
+    if (overlay) overlay.addEventListener('click', closeQuestionPanel);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && slidePanel.classList.contains('open')) {
+        closeQuestionPanel();
+      }
+    });
+
+    var questionForm = document.getElementById('questionForm');
+    if (questionForm) {
+      questionForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var name = document.getElementById('questionName').value.trim();
+        var phone = document.getElementById('questionPhone').value.trim();
+        var question = document.getElementById('questionText').value.trim();
+
+        if (!name || !phone || !question) {
+          alert(translations[currentLang].alertFillAll || 'Por favor, preencha todos os campos obrigatórios.');
+          return;
+        }
+
+        var msg = '💬 *PERGUNTA - Bakery Ilha da Gigoia*%0A%0A';
+        msg += '👤 *Nome:* ' + encodeURIComponent(name) + '%0A';
+        msg += '📱 *Telefone:* ' + encodeURIComponent(phone) + '%0A';
+        msg += '❓ *Pergunta:* ' + encodeURIComponent(question) + '%0A';
+        msg += '%0A📨 *Enviado via site*';
+
+        var whatsappURL = 'https://wa.me/14158770687?text=' + msg;
+        window.open(whatsappURL, '_blank');
+
+        var successMsg = document.getElementById('questionSuccess');
+        successMsg.classList.add('show');
+        this.reset();
+
+        // Reset question char counter
+        if (questionCharSpan) questionCharSpan.textContent = '0';
+
+        setTimeout(function() {
+          successMsg.classList.remove('show');
+        }, 5000);
+        closeQuestionPanel();
+      });
+    }
+
+    // ============================================================
+    // 6. BACK TO TOP
+    // ============================================================
+    var backTopBtn = document.getElementById('backToTopBtn');
+    if (backTopBtn) {
+      backTopBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    // ============================================================
+    // 7. SCROLL MARGIN
+    // ============================================================
+    var formElement = document.getElementById('form');
+    if (formElement) {
+      formElement.style.scrollMarginTop = '90px';
+    }
+
+    console.log('✅ Bakery Ilha da Gigoia — Tudo pronto!');
+  })();
+</script>
+</body>
+</html>
